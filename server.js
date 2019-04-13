@@ -4,6 +4,7 @@ const app = require('./app/main_app');
 
 const port = 3000;
 
-const server_run = http.createServer(app);
-
-server_run.listen(process.env.PORT || port)
+http.createServer((req, res)=>{
+    res.writeHead(301, {Location:'https://squaremodelsapp.herokuapp.com/api-docs'});
+    res.end();
+}).listen(process.env.PORT || port);
