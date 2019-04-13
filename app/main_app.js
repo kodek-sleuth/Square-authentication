@@ -17,6 +17,7 @@ const swaggerDefinition = {
         version: '1.0.0',
         description: 'Endpoints to test the user registration/login routes'
     },
+    schemes: ['https'],
     host: 'localhost:3000',
     basePath: '/'
 };
