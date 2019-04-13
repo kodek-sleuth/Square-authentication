@@ -13,8 +13,7 @@ const createDatabase = (req, res, next)=>{
     })
     .catch((error)=>{
         res.status(500).json({Error: error})
-        console.log(error)
-    })
+    });
 }
 
 createDatabase()
