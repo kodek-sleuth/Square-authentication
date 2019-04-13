@@ -61,6 +61,6 @@ auth.use('/signup', auth_controller.create_user)
 *       401:
 *         description: Invalid Email or Password
 */
-auth.use('/signin', auth_controller.sigin_user)
+auth.use('/signin', auth_controller.signin_user)
 
 module.exports = auth

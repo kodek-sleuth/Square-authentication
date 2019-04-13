@@ -1,122 +1,109 @@
 const jwt = require('jsonwebtoken');
+const User = require('../Models/model');
 const bcrypt = require('bcrypt')
-const Pool = require('pg').Pool;
-const connectionString = process.env.DATABASE_URL;
-const pool = new Pool({connectionString: connectionString})
 
-const createDatabase = (req, res, next)=>{
-    pool.query('CREATE TABLE IF NOT EXISTS users(id SERIAL PRIMARY KEY, email VARCHAR(150) NOT NULL UNIQUE, password TEXT NOT NULL)')
-    .then((feedback)=>{
-        console.log(feedback)
-        pool.end()
-    })
-    .catch((error)=>{
-        res.status(500).json({Error: error})
-    });
-}
 
 exports.create_user = (req, res, next)=>{
-    console.log(req.file);
-    var insert_query = 'INSERT INTO users(email, password) VALUES($1, $2)'
+    User.find({Email: req.body.Email})
+        .exec()
+        .then((user_find)=>{
+            if(user_find.length>=1)
+            {
+                res.status(409).json({
+                    Error: "Authentication Failed"
+                })
+            }
     
-    pool.query(`Select * from users where email='${req.body.Email}'`)
-    .then((result)=>{
-        if(result.rows==0)
-        {
-            bcrypt.hash(req.body.Password, 10, (err, hash)=>{
-                var request_body = [req.body.Email, hash]
-                if(err)
-                {
-                    res.status(500).json({
-                        Error: "Authentication Failed"
-                    })
-                }
-
-                else
-                {
+            else
+            {
+                bcrypt.hash(req.body.Password, 10, (err, hash)=>{
                     
-                    
-                    pool.query(insert_query, request_body, (error, result)=>{
-                        if(error)
-                        {
-                            res.status(500).json({
-                                Error: error
-                            })
-                        }
-        
-                        else
-                        {
-                            
+                    if(err)
+                    {
+                        res.status(500).json({
+                            Error: "Authentication Failed"
+                        })
+                    }
+    
+                    else
+                    {
+                        const new_user = new User({
+                            Full_Name:  req.body.Full_Name,
+                            Email: req.body.Email,
+                            Password: hash,
+                            Birth_Date: req.body.Birth_Date,
+                            Sex: req.body.Sex,
+                            Nationality: req.body.Nationality,
+                            Instagram_Account: req.body.Instagram_Account,
+                            Phone_Number: req.body.Phone_Number,
+                            Mother_Agency: req.body.Mother_Agency,
+                            Current_Agency: req.body.Current_Agency,
+                            Invitation_Code: req.body.Invitation_Code
+                        })
+                        new_user.save()
+                        .then((user)=>{
+                            console.log(user)
                             res.status(201).json({
-                                Message: "User Successfully Created"
-                            })
-                        }
-                    })
+                                Message: "Successfully Created User Account"
+                            });
+                        })
+                        .catch((error)=>{
+                            res.status(401).json({
+                                Message:"Authentication Failed"
+                        });
+                    });
                 }
-            })
-           
+            })  
         }
-
-        else
-        {
-            res.status(500).json({
-                Error: "Authentication Failed"
-            });
-        }
-        
-    })        
-    .catch((error)=>{
-        res.status(500).json({
-            Error: error
-        });
-    });  
+    })
+    .catch((err)=>{
+        res.status(401).json({
+            Message: "Authentication Failed"
+    }) 
+ })
 }
 
-exports.sigin_user = (req, res, next)=>{
-    pool.query(`Select * from users where email='${req.body.Email}'`)
-    .then((feedback)=>{
-        if(feedback.rowCount>0)
+
+exports.signin_user = (req, res, next)=>{
+    User.find({Email: req.body.Email})
+    .exec()
+    .then((user_found)=>{
+        if(user_found.length<1)
         {
-            const user_details_DB = feedback.rows
+            res.status(401).json({
+                Message: "Authentication Failed"
+            });
+        }
 
-            bcrypt.compare(req.body.Password, user_details_DB[0].password, (error, response)=>{
-               if(error)
-               {
-                    res.status(401).json({
-                        Error: "Invalid Email or Password"
-                    });
-               }
+        bcrypt.compare(req.body.Password, user_found[0].Password, (err, response)=>{
+            if(err)
+            {
+                return res.status(401).json({
+                    Message: "Invalid Email or Password"
+                });
+            }
 
-               if(response)
-               {
+            if(response)
+            {
                 const token = jwt.sign({
-                    Email: user_details_DB[0].email
+                    Email: user_found[0].Email
                 },
                 process.env.JWT_KEY,
                 {
                     expiresIn: "2h"
                 }
-                )
-                
-                    res.status(200).json({
-                        Success: "Successfully Logged In",
-                        "Access_Token": token
-                    });
-               }
-            })
-        }
+                );
+                res.status(200).json({
+                    Message: "You Have Successfully Logged In",
+                    Access_Token: token
+                });
+            }
 
-        else
-        {
-            res.status(401).json({
-                Error: "Invalid Email or Password"
-            });
-        }
+        })
     })
-
     .catch((error)=>{
-        res.status(401).json({
-            Error: error
+        res.status(500).json({
+            Message: error
         });
-    })
+    });
 }

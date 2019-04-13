@@ -1,10 +1,20 @@
 const express = require('express');
 const body_parser = require('body-parser');
-const cors = require('cors')
+const cors = require('cors');
+const mongoose = require('mongoose');
 const auth = require('../api/Views/auth');
 const swaggerDoc = require('swagger-jsdoc');
 const swaggerUI = require('swagger-ui-express')
 const app = express();
+
+
+mongoose.connect('mongodb+srv://josekodek2000@gmail.com:josekodek2000%24@cluster0-6et8g.mongodb.net/test?retryWrites=true', {useNewUrlParser: true})
+.then((feedback)=>{
+    console.log('Connection Successfully')
+})
+.catch((error)=>{
+    console.log(error)
+})
 
 app.use(body_parser.urlencoded({extended: true}));
 app.use(body_parser.json());
