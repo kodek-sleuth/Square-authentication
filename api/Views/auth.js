@@ -6,4 +6,4 @@ auth.use('/signup', auth_controller.signup_User)
 
 auth.use('/signin', auth_controller.signin_User)
 
-exports.module = auth
+module.exports = auth

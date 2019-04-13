@@ -4,7 +4,7 @@ const body_parser = require('body-parser');
 const mongoose = require('mongoose');
 const cors = require('cors')
 const auth = require('../api/Views/auth');
-const app = require('express');
+const app = express();
 
 //Database Connection
 mongoose.connect(process.env.MONGO_DB_URI, {useNewUrlParser: true})
@@ -33,4 +33,4 @@ app.use((error, req, res, next)=>{
     })
 })
 
-exports.module = app
+module.exports = app
