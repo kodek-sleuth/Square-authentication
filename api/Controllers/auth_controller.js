@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt')
 const Pool = require('pg').Pool;
-const connectionString = process.env.NODE_POSTGRES_STRING;
+const connectionString = process.env.DATABASE_URL;
 const pool = new Pool({connectionString: connectionString})
 
 const createDatabase = (req, res, next)=>{
