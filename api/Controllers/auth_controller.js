@@ -1,4 +1,3 @@
-const Customer = require('../Models/collection');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt')
 const Pool = require('pg').Pool;
