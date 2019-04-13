@@ -85,7 +85,7 @@ exports.signin_Customer = (req, res, next)=>{
                     )
 
                     res.status(200).json({
-                        Message: "You are have Successfully Logged In",
+                        Message: "You  have Successfully Logged In",
                         Token: token 
                     })
                 }
