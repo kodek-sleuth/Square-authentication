@@ -8,11 +8,6 @@ const swaggerDoc = require('swagger-jsdoc');
 const swaggerUI = require('swagger-ui-express')
 const app = express();
 
-//Database Connection
-mongoose.connect(process.env.MONGO_DB_URI, {useNewUrlParser: true})
-  .then(() =>  console.log('connection succesful'))
-  .catch((err) => console.error(err));
-
 app.use(body_parser.urlencoded({extended: true}));
 app.use(body_parser.json());
 app.use(morgan('dev'));

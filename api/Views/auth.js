@@ -31,7 +31,7 @@ const auth_controller = require('../Controllers/auth_controller')
 *       500:
 *         description: Failed To Authenticate
 */
-auth.use('/signup', auth_controller.signup_Customer)
+auth.use('/signup', auth_controller.create_user)
 
 /**
 * @swagger
@@ -61,6 +61,6 @@ auth.use('/signup', auth_controller.signup_Customer)
 *       401:
 *         description: Invalid Email or Password
 */
-auth.use('/signin', auth_controller.signin_Customer)
+auth.use('/signin', auth_controller.sigin_user)
 
 module.exports = auth

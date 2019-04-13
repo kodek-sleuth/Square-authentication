@@ -1,100 +1,126 @@
 const Customer = require('../Models/collection');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt')
+const Pool = require('pg').Pool;
+const connectionString = process.env.NODE_POSTGRES_STRING;
+const pool = new Pool({connectionString: connectionString})
 
-exports.signup_Customer = (req, res, next)=>{
-    Customer.find({Email: req.body.Email})
-    .exec()
-    .then((customer_found)=>{
-        if(customer_found.length>=1)
-        {
-            res.status(500).json({
-                Error: "Failed To Authenticate"
-            })
-        }
-
-        else
-        {
-            bcrypt.hash(req.body.Password, 10, (error, hash)=>{
-                if(error)
-                {
-                    res.status(500).json({
-                        Error: "Failed To Authenticate"
-                    })
-                }
-
-                else
-                {
-                    const customer = new Customer({
-                        Email: req.body.Email,
-                        Password: hash
-                    })
-                    customer.save()
-                    .then((feedback)=>{
-                        res.status(201).json({
-                            Success: "Customer Successfully Signed Up"
-                        })
-                        console.log(feedback)
-                    })
-                    .catch((err)=>{
-                        res.status(500).json({
-                            Error: "Failed To authenticate"
-                        })
-                    })
-                }
-            });
-        }
+const createDatabase = (req, res, next)=>{
+    pool.query('CREATE TABLE IF NOT EXISTS users(id SERIAL PRIMARY KEY, email VARCHAR(150) NOT NULL UNIQUE, password TEXT NOT NULL)')
+    .then((feedback)=>{
+        console.log(feedback)
+        pool.end()
     })
-    .catch((err)=>{
-        res.status(500).json({
-            Error: err
-        })
+    .catch((error)=>{
+        res.status(500).json({Error: error})
+        console.log(error)
     })
 }
 
-exports.signin_Customer = (req, res, next)=>{
-    Customer.find({Email: req.body.Email})
-    .exec()
-    .then((customer_found)=>{
-        if(customer_found.length<1)
-        {
-            res.status(401).json({
-                Error: "Invalid Email or Password"
-            })
-        }
+createDatabase()
 
-        else
+exports.create_user = (req, res, next)=>{
+    console.log(req.file);
+    var insert_query = 'INSERT INTO users(email, password) VALUES($1, $2)'
+    
+    pool.query(`Select * from users where email='${req.body.Email}'`)
+    .then((result)=>{
+        if(result.rows==0)
         {
-            bcrypt.compare(req.body.Password, customer_found[0].Password, (err, response)=>{
+            bcrypt.hash(req.body.Password, 10, (err, hash)=>{
+                var request_body = [req.body.Email, hash]
                 if(err)
                 {
-                    res.status(401).json({
-                        Error: "Invalid Email or Password"
+                    res.status(500).json({
+                        Error: "Authentication Failed"
                     })
                 }
 
                 else
                 {
-                    const token = jwt.sign({
-                        Email: req.body.Email
-                    },
-                    process.env.JWT_KEY,
-                    {
-                        expiresIn: "2h"
-                    }
-                    )
-
-                    res.status(200).json({
-                        Message: "You  have Successfully Logged In",
-                        Token: token 
+                    
+                    
+                    pool.query(insert_query, request_body, (error, result)=>{
+                        if(error)
+                        {
+                            res.status(500).json({
+                                Error: error
+                            })
+                        }
+        
+                        else
+                        {
+                            
+                            res.status(201).json({
+                                Message: "User Successfully Created"
+                            })
+                        }
                     })
                 }
             })
+           
+        }
+
+        else
+        {
+            res.status(500).json({
+                Error: "Authentication Failed"
+            });
+        }
+        
+    })        
+    .catch((error)=>{
+        res.status(500).json({
+            Error: error
+        });
+    });  
+}
+
+exports.sigin_user = (req, res, next)=>{
+    pool.query(`Select * from users where email='${req.body.Email}'`)
+    .then((feedback)=>{
+        if(feedback.rowCount>0)
+        {
+            const user_details_DB = feedback.rows
+
+            bcrypt.compare(req.body.Password, user_details_DB[0].password, (error, response)=>{
+               if(error)
+               {
+                    res.status(401).json({
+                        Error: "Invalid Email or Password"
+                    });
+               }
+
+               if(response)
+               {
+                const token = jwt.sign({
+                    Email: user_details_DB[0].email
+                },
+                process.env.JWT_KEY,
+                {
+                    expiresIn: "2h"
+                }
+                )
+                
+                    res.status(200).json({
+                        Success: "Successfully Logged In",
+                        "Access_Token": token
+                    });
+               }
+            })
+        }
+
+        else
+        {
+            res.status(401).json({
+                Error: "Invalid Email or Password"
+            });
         }
     })
-    .catch((err)=>{
+
+    .catch((error)=>{
         res.status(401).json({
-            Error: err
-        })
+            Error: error
+        });
     })
 }
