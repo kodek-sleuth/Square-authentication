@@ -8,7 +8,7 @@ const swaggerUI = require('swagger-ui-express')
 const app = express();
 
 
-mongoose.connect('mongodb+srv://josekodek2000@gmail.com:josekodek2000%24@cluster0-6et8g.mongodb.net/test?retryWrites=true', {useNewUrlParser: true})
+mongoose.connect(process.env.MONGODB_URI, {useNewUrlParser: true})
 .then((feedback)=>{
     console.log('Connection Successfully')
 })
