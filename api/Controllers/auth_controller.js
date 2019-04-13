@@ -9,7 +9,7 @@ exports.signup_User = (req, res, next)=>{
         if(user_found.length>=1)
         {
             res.status(500).json({
-                Error: "Invalid Email or Password"
+                Error: "Failed To Authenticate"
             })
         }
 
@@ -18,7 +18,29 @@ exports.signup_User = (req, res, next)=>{
             bcrypt.hash(req.body.Password, 10, (error, hash)=>{
                 if(error)
                 {
-                    
+                    res.status(500).json({
+                        Error: "Failed To Authenticate"
+                    })
+                }
+
+                else
+                {
+                    const user = new User({
+                        Email: req.body.Email,
+                        Password: hash
+                    })
+                    user.save()
+                    .then((feedback)=>{
+                        res.status(201).json({
+                            Success: "User Successfully Signed Up"
+                        })
+                        console.log(feedback)
+                    })
+                    .catch((err)=>{
+                        res.status(500).json({
+                            Error: "Failed To authenticate"
+                        })
+                    })
                 }
             });
         }
