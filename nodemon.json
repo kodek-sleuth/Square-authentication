@@ -1,0 +1,6 @@
+{
+    "env":{
+        "MONGO_DB_URI":"mongodb://kodek:sleuth@localhost:27017/new_database",
+        "JWT_KEY":"too_secret_bitch"
+    }
+}
