@@ -28,7 +28,7 @@ const swaggerDefinition = {
         description: 'Endpoints to test the user registration/login routes'
     },
     schemes: ['https'],
-    host: 'square-authentication.herokuapp.com',
+    host: 'squaremodelsapp.herokuapp.com',
     basePath: '/'
 };
 

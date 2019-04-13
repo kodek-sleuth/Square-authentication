@@ -1,10 +1,12 @@
-const http = require('http');
-
 const app = require('./app/main_app');
+const port = process.env.PORT || 3000;
+const targetBaseUrl = 'https://squaremodelsapp.herokuapp.com/api-docs';
 
-const port = 3000;
+const handleRedirect= (req, res)=> {
+  const targetUrl = targetBaseUrl + req.originalUrl;
+  res.redirect(targetUrl);
+}
 
-http.createServer((req, res)=>{
-    res.writeHead(301, {Location:'https://squaremodelsapp.herokuapp.com/api-docs'});
-    res.end();
-}).listen(process.env.PORT || port);
+app.get('*', handleRedirect);
+
+app.listen(port);
