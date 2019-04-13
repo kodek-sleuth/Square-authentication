@@ -15,6 +15,8 @@ const createDatabase = (req, res, next)=>{
     });
 }
 
+createDatabase()
+
 exports.create_user = (req, res, next)=>{
     console.log(req.file);
     var insert_query = 'INSERT INTO users(email, password) VALUES($1, $2)'
