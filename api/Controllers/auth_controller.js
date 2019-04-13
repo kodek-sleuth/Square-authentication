@@ -1,12 +1,12 @@
-const User = require('../Models/collection');
+const Customer = require('../Models/collection');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt')
 
-exports.signup_User = (req, res, next)=>{
-    User.find({Email: req.body.Email})
+exports.signup_Customer = (req, res, next)=>{
+    Customer.find({Email: req.body.Email})
     .exec()
-    .then((user_found)=>{
-        if(user_found.length>=1)
+    .then((customer_found)=>{
+        if(customer_found.length>=1)
         {
             res.status(500).json({
                 Error: "Failed To Authenticate"
@@ -25,14 +25,14 @@ exports.signup_User = (req, res, next)=>{
 
                 else
                 {
-                    const user = new User({
+                    const customer = new Customer({
                         Email: req.body.Email,
                         Password: hash
                     })
-                    user.save()
+                    customer.save()
                     .then((feedback)=>{
                         res.status(201).json({
-                            Success: "User Successfully Signed Up"
+                            Success: "Customer Successfully Signed Up"
                         })
                         console.log(feedback)
                     })
@@ -52,11 +52,11 @@ exports.signup_User = (req, res, next)=>{
     })
 }
 
-exports.signin_User = (req, res, next)=>{
-    User.find({Email: req.body.Email})
+exports.signin_Customer = (req, res, next)=>{
+    Customer.find({Email: req.body.Email})
     .exec()
-    .then((user_found)=>{
-        if(user_found.length<1)
+    .then((customer_found)=>{
+        if(customer_found.length<1)
         {
             res.status(401).json({
                 Error: "Invalid Email or Password"
@@ -65,7 +65,7 @@ exports.signin_User = (req, res, next)=>{
 
         else
         {
-            bcrypt.compare(req.body.Password, user_found[0].Password, (err, response)=>{
+            bcrypt.compare(req.body.Password, customer_found[0].Password, (err, response)=>{
                 if(err)
                 {
                     res.status(401).json({
@@ -78,7 +78,7 @@ exports.signin_User = (req, res, next)=>{
                     const token = jwt.sign({
                         Email: req.body.Email
                     },
-                    process.env.JWT_TOKEN,
+                    process.env.JWT_KEY,
                     {
                         expiresIn: "2h"
                     }
