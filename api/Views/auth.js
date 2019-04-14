@@ -17,14 +17,38 @@ const auth_controller = require('../Controllers/auth_controller')
 *       - name: body
 *         in: body
 *         properties:
+*           Full_Name:
+*             type: string
 *           Email:
 *             type: string
 *           Password:
 *             type: string
 *             format: password
+*           Birth_Date:
+*             type: string
+*           Sex:
+*             type: string
+*           Nationality:
+*             type: string
+*           Instagram_Account:
+*             type: string
+*           Phone_Number:
+*             type: string
+*           Mother_Agency:
+*             type: string
+*           Current_Agency:
+*             type: string
+*           Invitation_Code:
+*             type: string
 *         required:
+*           - Full_Name
 *           - Email
 *           - Password
+*           - Birth_Date
+*           - Sex
+*           - Nationality
+*           - Instagram_Account
+*           - Phone_Number
 *     responses:
 *       201:
 *         description: Customer Successfully Signed Up
